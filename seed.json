@@ -1,0 +1,11 @@
+[
+  {"repo":"vercel-labs/agent-skills","stars":34800,"path":"skills/react-best-practices/SKILL.md","name":"React Best Practices","category":"frontend","description":"React와 Next.js의 렌더링 성능, 데이터 로딩, 번들 크기를 점검합니다.","tags":"react next.js nextjs component render dashboard 대시보드 렌더 컴포넌트 성능 웹"},
+  {"repo":"anthropics/skills","stars":199600,"path":"skills/frontend-design/SKILL.md","name":"Frontend Design","category":"design","description":"랜딩 페이지와 웹 앱의 레이아웃, 타이포그래피, 컴포넌트 스타일을 설계합니다.","tags":"landing ui ux next.js react tailwind figma frontend 디자인 랜딩 반응형 화면 레이아웃"},
+  {"repo":"obra/superpowers","stars":325176,"path":"skills/systematic-debugging/SKILL.md","name":"Systematic Debugging","category":"testing","description":"오류를 재현하고 원인을 추적한 뒤 수정 사항을 검증합니다.","tags":"debug fix bug error regression 오류 버그 원인 디버그 재현 로그"},
+  {"repo":"anthropics/skills","stars":199600,"path":"skills/webapp-testing/SKILL.md","name":"Webapp Testing","category":"testing","description":"Playwright로 사용자 동선과 브라우저 동작을 테스트합니다.","tags":"playwright browser e2e test 랜딩 브라우저 테스트 동작 버튼 사용자"},
+  {"repo":"anthropics/skills","stars":199600,"path":"skills/xlsx/SKILL.md","name":"Spreadsheets","category":"documents","description":"엑셀 파일의 표, 수식, 차트를 만들고 기존 데이터를 정리합니다.","tags":"python xlsx excel pandas spreadsheet report 엑셀 시트 리포트 보고서 자동화"},
+  {"repo":"obra/superpowers","stars":325176,"path":"skills/writing-plans/SKILL.md","name":"Writing Plans","category":"workflow","description":"작업에 필요한 파일과 구현·검증 단계를 순서대로 정리합니다.","tags":"plan roadmap architecture planning 기획 계획 로드맵 작업 구조 설계"},
+  {"repo":"anthropics/skills","stars":199600,"path":"skills/pdf/SKILL.md","name":"PDF","category":"documents","description":"PDF의 텍스트와 표를 추출하고 페이지를 합치거나 새 문서를 만듭니다.","tags":"python pdf report extract export 리포트 문서 보고서 내보내기"},
+  {"repo":"obra/superpowers","stars":325176,"path":"skills/test-driven-development/SKILL.md","name":"Test-Driven Development","category":"testing","description":"실패하는 테스트부터 작성하고 작은 단위로 구현과 검증을 반복합니다.","tags":"test tdd unit pytest jest regression 단위 테스트 회귀 검증"},
+  {"repo":"obra/superpowers","stars":325176,"path":"skills/brainstorming/SKILL.md","name":"Brainstorming","category":"workflow","description":"요구사항을 구체화하고 구현 전에 설계 방향을 비교합니다.","tags":"brainstorm requirements ideation planning 요구사항 기획 아이디어 프로젝트 설계"}
+]

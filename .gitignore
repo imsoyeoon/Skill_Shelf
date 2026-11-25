@@ -1,0 +1,20 @@
+# ── 비밀값: 절대 GitHub에 올리면 안 되는 파일 ──────────────
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# ── Python이 자동으로 만드는 파일 ────────────────────────────
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# ── 운영체제·편집기가 만드는 파일 ────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# 참고: .streamlit/config.toml(테마 설정)은 앱 실행에 필요하므로 올립니다.

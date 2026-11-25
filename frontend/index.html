@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skill Shelf</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="wordmark" href="#top" aria-label="Skill Shelf 홈"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>Skill Shelf</a>
+      <nav aria-label="메인 메뉴">
+        <a class="nav-link active" href="#recommend">프로젝트 추천</a>
+        <a class="nav-link" href="#catalog">스킬 탐색</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top" class="shell">
+    <section id="recommend" aria-labelledby="hero-title">
+      <div class="hero">
+        <div>
+          <h1 id="hero-title">다음 프로젝트에<br><span>쓸 스킬을 찾으세요.</span></h1>
+          <p>만들고 싶은 걸 설명하거나 프로젝트 파일을 올려보세요.<br class="wide-only"> 지금 필요한 에이전트 스킬을 골라드립니다.</p>
+        </div>
+        <a class="hero-stat" href="#catalog" aria-label="GitHub 별 1만 개 이상인 저장소의 스킬 탐색">
+          <span class="stat-top"><span aria-hidden="true">☆</span> GITHUB STARS</span>
+          <strong>10k<span>+</span></strong>
+          <span class="stat-caption">스킬을 담은 저장소 기준</span>
+        </a>
+      </div>
+
+      <div class="chat-panel">
+        <div class="chat-head">
+          <h2><span class="terminal" aria-hidden="true">›_</span> 프로젝트 추천</h2>
+          <span id="mode" class="mode"></span>
+        </div>
+        <div id="transcript" class="chat-body" role="log" aria-label="추천 대화" aria-live="polite"></div>
+        <div class="chat-bottom">
+          <div class="examples" id="examples" aria-label="프로젝트 설명 예시">
+            <button type="button" data-example="Next.js로 대시보드를 만들고 있어요. React 화면 성능과 컴포넌트 구조를 개선하고 싶어요.">Next.js 대시보드</button>
+            <button type="button" data-example="랜딩 페이지를 만들고 있어요. 화면 디자인을 다듬고 브라우저에서 동작을 테스트하고 싶어요.">랜딩 페이지 제작</button>
+            <button type="button" data-example="Python으로 엑셀 리포트를 자동화하고 PDF로 결과를 내보내고 싶어요.">Python 리포트 자동화</button>
+          </div>
+          <form id="composer" class="composer">
+            <label for="upload" class="clip" title="프로젝트 파일 첨부" tabindex="0" role="button"><span aria-hidden="true">＋</span><span class="sr-only">프로젝트 파일 첨부</span></label>
+            <input id="upload" type="file" multiple accept=".zip,.md,.txt,.json,.toml,.yaml,.yml,.py,.js,.jsx,.ts,.tsx,.html,.css">
+            <textarea id="prompt" aria-label="프로젝트 설명" placeholder="어떤 프로젝트를 만들고 있나요?" rows="1" maxlength="6000"></textarea>
+            <button id="send" class="primary send" type="submit">추천 받기 <span aria-hidden="true">↑</span></button>
+          </form>
+          <div class="composer-meta"><span id="uploads">ZIP 또는 텍스트 파일 첨부</span><span>Enter 전송 · Shift + Enter 줄바꿈</span></div>
+          <p id="chat-notice" class="notice" role="status" hidden></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="catalog" class="catalog" aria-labelledby="catalog-title">
+      <div class="catalog-head">
+        <div>
+          <h2 id="catalog-title">스킬 탐색</h2>
+          <p>GitHub 별 1만 개 이상인 저장소에서 스킬을 찾아보세요.</p>
+        </div>
+        <button id="refresh" class="primary refresh" type="button"><span aria-hidden="true">⟳</span> GitHub에서 불러오기</button>
+      </div>
+      <div class="toolbar">
+        <div id="filters" class="filters" role="group" aria-label="스킬 카테고리"></div>
+        <label class="search"><span class="lens" aria-hidden="true"></span><input id="search" type="search" aria-label="스킬 검색" placeholder="스킬 검색"></label>
+      </div>
+      <div class="catalog-meta"><span id="count" aria-live="polite"></span><span id="source"></span></div>
+      <p id="catalog-notice" class="notice" role="status" hidden></p>
+      <div id="grid" class="grid"></div>
+      <button id="more" class="outline more" type="button" hidden>더 보기</button>
+    </section>
+  </main>
+
+  <footer class="shell footer"><span>Skill Shelf</span><a href="#top">맨 위로 ↑</a></footer>
+  <dialog id="detail" aria-labelledby="detail-title">
+    <div class="detail-inner">
+      <button id="close" type="button" aria-label="상세 닫기">×</button>
+      <div id="detail-body"></div>
+    </div>
+  </dialog>
+  <script id="seed" type="application/json">__SKILL_SHELF_SEED__</script>
+  <script src="app.js"></script>
+</body>
+</html>
