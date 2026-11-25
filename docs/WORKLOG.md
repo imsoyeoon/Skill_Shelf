@@ -85,7 +85,12 @@ b5e167c  maesil12   소스 코드와 개발 문서(PRD, TECH_SPEC) 추가
 - "GitHub에서 불러오기"는 토큰 설정 후 리허설에서 시간·결과를 확인하고, 불안하면 발표 직전 같은 탭에서 미리 실행해 두기
 - Streamlit Cloud 앱은 오래 쓰지 않으면 잠들기 때문에, 발표 직전에 한 번 열어 깨워 두기
 
-### 6. 남은 일
+### 6. 작업 기록 업로드
+
+- 커밋 `403d8f2` "작업 기록(docs/WORKLOG.md) 추가" → push 완료 (작성자 계정 maesil12 확인)
+- 이후 작업도 이 문서에 날짜별로 이어서 기록
+
+### 7. 남은 일
 
 - [ ] Streamlit Community Cloud 배포 → 앱 URL 확보 (Main file: `app.py`)
 - [ ] Secrets에 `OPENAI_API_KEY`, `GITHUB_TOKEN` 등록 후 AI 모드·불러오기 재점검
