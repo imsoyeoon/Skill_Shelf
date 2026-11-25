@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Skill Shelf</title>
+  <style>
+:root {
+  color-scheme: light;
+  --background: #f6f6f4;
+  --paper: #fff;
+  --ink: #171816;
+  --muted: #5a5c56;
+  --line: #dedfda;
+  --faint: #efefed;
+  --accent: #d9f44c;
+  --accent-hover: #cde839;
+  --mono: "IBM Plex Mono", Consolas, "Liberation Mono", monospace;
+  --sans: Inter, "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", system-ui, sans-serif;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--background);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+button, input, textarea { font: inherit; }
+button, a, input, textarea { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; text-decoration: none; }
+button { color: inherit; cursor: pointer; }
+button:disabled { cursor: wait; opacity: .65; }
+:focus-visible { outline: 2px solid #222; outline-offset: 4px; }
+[hidden] { display: none !important; }
+.shell { width: min(1120px, calc(100% - 72px)); margin-inline: auto; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.topbar { border-bottom: 1px solid var(--line); background: var(--background); }
+.topbar-inner { display: flex; align-items: center; justify-content: space-between; height: 70px; }
+.wordmark { display: inline-flex; align-items: center; gap: 10px; font-size: 21px; font-weight: 800; letter-spacing: -.075em; white-space: nowrap; }
+.mark { display: grid; justify-items: start; align-content: center; gap: 3px; width: 30px; height: 30px; padding-left: 7px; background: var(--ink); border-radius: 7px; }
+.mark i { display: block; width: 15px; height: 2px; background: white; border-radius: 1px; }
+.mark i:nth-child(2) { width: 11px; }
+.mark i:nth-child(3) { width: 7px; background: var(--accent); }
+nav { display: flex; align-items: stretch; align-self: stretch; gap: 28px; }
+.nav-link { position: relative; display: flex; align-items: center; font-weight: 650; font-size: 14px; color: var(--muted); white-space: nowrap; }
+.nav-link:hover, .nav-link.active { color: var(--ink); }
+.nav-link.active::after { content: ""; position: absolute; inset: auto 0 -1px; height: 2px; background: var(--ink); }
+
+.hero { display: grid; grid-template-columns: 1fr 164px; align-items: end; gap: 30px; padding-block: 45px 31px; }
+.hero h1 { margin: 0; font-size: clamp(39px, 5.35vw, 72px); line-height: 1.065; letter-spacing: -.09em; font-weight: 850; word-break: keep-all; }
+.hero h1 span { background: linear-gradient(transparent 73%, var(--accent) 73%, var(--accent) 96%, transparent 96%); padding-right: .08em; }
+.hero p { color: var(--muted); font-size: 16px; line-height: 1.7; margin: 21px 0 0; letter-spacing: -.025em; word-break: keep-all; }
+.hero-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; background: #ebebe7; border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px 15px; margin-bottom: 4px; }
+.hero-stat:hover { border-color: var(--ink); }
+.stat-top, .stat-caption { font: 600 12px/1.25 var(--mono); color: var(--muted); white-space: nowrap; }
+.stat-top span { font: 16px/1 var(--sans); vertical-align: -1px; margin-right: 2px; color: var(--ink); }
+.hero-stat strong { font: 750 42px/.95 var(--mono); letter-spacing: -.11em; }
+.hero-stat strong span { font-size: .58em; vertical-align: top; padding-left: 4px; }
+.stat-caption { font-family: var(--sans); font-weight: 550; }
+
+.chat-panel { background: var(--paper); border: 1px solid #d5d6d0; border-radius: 14px; }
+.chat-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 18px; border-bottom: 1px solid var(--faint); }
+.chat-head h2 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 15px; letter-spacing: -.025em; }
+.terminal { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; background: var(--ink); color: white; font: bold 13px var(--mono); padding-bottom: 2px; }
+.mode { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); white-space: nowrap; }
+.mode::before { content: ""; width: 7px; height: 7px; border: 1px solid #888a81; border-radius: 50%; }
+.mode.live::before { border-color: var(--ink); background: var(--accent); }
+.chat-body { display: grid; gap: 12px; padding: 18px 18px 4px; max-height: 420px; overflow: auto; }
+.message { max-width: min(780px, 96%); width: fit-content; padding: 11px 13px; border-radius: 0 9px 9px 9px; background: var(--background); font-size: 15px; line-height: 1.55; overflow-wrap: anywhere; white-space: pre-wrap; }
+.message.user { margin-left: auto; border-radius: 9px 0 9px 9px; background: #ededeb; }
+.suggestions { display: grid; gap: 6px; margin-top: 7px; white-space: normal; }
+.suggestion { display: grid; gap: 2px; text-align: left; border: 1px solid var(--line); background: var(--paper); border-radius: 7px; padding: 8px 10px; }
+.suggestion:hover { border-color: var(--ink); }
+.suggestion span { color: var(--muted); font-size: 13px; }
+.chat-bottom { padding: 9px 18px 13px; }
+.examples { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+.examples button, .outline { border: 1px solid var(--line); border-radius: 7px; background: var(--paper); font-size: 13px; padding: 6px 9px; color: #41423d; }
+.examples button:hover, .outline:hover { border-color: #999b91; background: var(--background); }
+.composer { display: flex; align-items: center; gap: 8px; padding: 5px; border: 1px solid #d0d1cc; border-radius: 9px; }
+.composer:focus-within { border-color: #707266; }
+.composer input[type=file] { display: none; }
+.clip { display: grid; place-items: center; flex: 0 0 34px; height: 33px; border: 1px solid var(--line); border-radius: 6px; margin-left: 1px; font-size: 20px; cursor: pointer; }
+.clip:hover { background: var(--faint); }
+.composer textarea { flex: 1; min-width: 0; min-height: 34px; max-height: 120px; resize: vertical; border: 0; background: transparent; outline: none; padding: 7px 2px; font-size: 15px; line-height: 20px; }
+.composer textarea::placeholder, .search input::placeholder { color: #676962; opacity: 1; }
+.primary { border: 1px solid #24271b; border-radius: 7px; background: var(--accent); color: var(--ink); font-weight: 750; font-size: 14px; white-space: nowrap; }
+.primary:hover { background: var(--accent-hover); }
+.send { height: 36px; padding-inline: 11px; }
+.send span { margin-left: 3px; }
+.composer-meta { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-top: 8px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+#uploads { overflow-wrap: anywhere; }
+
+.catalog { padding-block: 37px 42px; }
+.catalog-head { display: flex; gap: 18px; align-items: end; justify-content: space-between; margin-bottom: 18px; }
+.catalog-head h2 { margin: 0; font-size: 35px; font-weight: 850; letter-spacing: -.075em; line-height: 1.12; }
+.catalog-head p { margin: 8px 0 0; color: var(--muted); font-size: 15px; letter-spacing: -.025em; line-height: 1.5; word-break: keep-all; }
+.refresh { height: 42px; padding-inline: 13px; }
+.refresh span { font: 19px/.8 var(--sans); display: inline-block; margin-right: 3px; vertical-align: -1px; }
+.toolbar { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-block: 9px; }
+.filters { display: flex; flex-wrap: wrap; gap: 4px; }
+.filters button { font-size: 14px; font-weight: 650; color: var(--muted); border: 1px solid transparent; background: transparent; padding: 6px 10px; border-radius: 6px; white-space: nowrap; }
+.filters button:hover { background: #e8e9e4; }
+.filters button[aria-pressed=true] { background: var(--ink); color: white; }
+.search { display: flex; gap: 9px; align-items: center; background: var(--paper); border: 1px solid var(--line); border-radius: 7px; padding: 6px 9px; width: 164px; flex-shrink: 0; }
+.search:focus-within { border-color: var(--ink); }
+.lens { position: relative; flex: 0 0 11px; height: 11px; border: 1.5px solid var(--muted); border-radius: 100%; }
+.lens::after { position: absolute; content: ""; width: 5px; height: 1.5px; left: 7px; top: 8px; transform: rotate(45deg); background: var(--muted); }
+.search input { width: 100%; border: 0; font-size: 14px; outline: none; background: transparent; }
+.catalog-meta { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 13px; margin: 13px 0 9px; }
+.notice { font-size: 13px; color: var(--ink); line-height: 1.5; border-left: 3px solid #a0a294; padding-left: 8px; margin: 8px 0; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.card { min-width: 0; min-height: 152px; text-align: left; display: flex; flex-direction: column; padding: 13px; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; }
+.card:hover { border-color: var(--ink); }
+.card-top, .card-footer { display: flex; width: 100%; justify-content: space-between; gap: 10px; align-items: center; }
+.card-top { margin-bottom: 10px; }
+.glyph { background: #efefec; display: grid; place-items: center; color: #3c3d36; width: 29px; height: 29px; border-radius: 6px; font: 700 14px var(--mono); }
+.category { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.card h3 { margin: 0 0 5px; font-size: 16px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.card p { margin: 0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.48; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: keep-all; overflow-wrap: anywhere; }
+.card-footer { border-top: 1px solid var(--faint); margin-top: auto; padding-top: 8px; color: var(--muted); font: 12px var(--mono); }
+.card-footer span:first-child { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-footer span:last-child { white-space: nowrap; color: var(--ink); }
+.empty { grid-column: 1/-1; padding: 20px 12px; text-align: center; color: var(--muted); border: 1px dashed var(--line); border-radius: 8px; }
+.more { display: block; margin: 15px auto 0; padding: 8px 14px; }
+.footer { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-block: 15px 24px; color: var(--muted); font-size: 13px; }
+.footer span { font-weight: 800; }
+
+dialog { width: min(480px, calc(100% - 28px)); max-height: 85vh; color: var(--ink); border: 1px solid var(--ink); border-radius: 13px; padding: 0; background: var(--paper); }
+dialog::backdrop { background: #10110e7a; }
+.detail-inner { position: relative; padding: 22px; overflow-wrap: anywhere; }
+.detail-inner #close { position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); font-size: 21px; line-height: 1; }
+.detail-inner h2 { margin: 10px 32px 6px 0; font-size: 25px; letter-spacing: -.035em; }
+.detail-inner p { color: var(--muted); font-size: 15px; line-height: 1.65; }
+.detail-inner a { display: inline-flex; padding: 8px 11px; margin: 4px 4px 0 0; }
+.detail-inner small { display: block; color: var(--muted); margin-top: 12px; font: 12px/1.5 var(--mono); }
+
+@media (max-width: 800px) {
+  .shell { width: calc(100% - 38px); }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hero { padding-block: 36px 24px; }
+  .toolbar { align-items: start; }
+}
+@media (max-width: 540px) {
+  .shell { width: calc(100% - 28px); }
+  .topbar-inner { height: 56px; }
+  nav { gap: 12px; }
+  .nav-link { font-size: 12px; }
+  .wordmark { font-size: 18px; gap: 6px; }
+  .mark { transform: scale(.85); transform-origin: left center; margin-right: -3px; }
+  .hero { grid-template-columns: 1fr; gap: 14px; padding-top: 30px; }
+  .hero h1 { font-size: clamp(31px, 9.3vw, 47px); }
+  .hero-stat { display: none; }
+  .hero p { font-size: 15px; margin-top: 16px; }
+  .wide-only { display: none; }
+  .chat-head, .chat-body, .chat-bottom { padding-inline: 11px; }
+  .composer-meta span:nth-child(2) { display: none; }
+  .send { padding-inline: 8px; font-size: 13px; }
+  .send span { display: none; }
+  .catalog { padding-top: 30px; }
+  .catalog-head { align-items: start; flex-direction: column; gap: 11px; }
+  .catalog-head h2 { font-size: 29px; }
+  .toolbar { flex-direction: column; }
+  .search { width: 100%; }
+}
+@media (max-width: 365px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+</style>
+</head>
+<body data-standalone>
+  <header class="topbar">
+    <div class="shell topbar-inner">
+      <a class="wordmark" href="#top" aria-label="Skill Shelf 홈"><span class="mark" aria-hidden="true"><i></i><i></i><i></i></span>Skill Shelf</a>
+      <nav aria-label="메인 메뉴">
+        <a class="nav-link active" href="#recommend">프로젝트 추천</a>
+        <a class="nav-link" href="#catalog">스킬 탐색</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top" class="shell">
+    <section id="recommend" aria-labelledby="hero-title">
+      <div class="hero">
+        <div>
+          <h1 id="hero-title">다음 프로젝트에<br><span>쓸 스킬을 찾으세요.</span></h1>
+          <p>만들고 싶은 걸 설명하거나 프로젝트 파일을 올려보세요.<br class="wide-only"> 지금 필요한 에이전트 스킬을 골라드립니다.</p>
+        </div>
+        <a class="hero-stat" href="#catalog" aria-label="GitHub 별 1만 개 이상인 저장소의 스킬 탐색">
+          <span class="stat-top"><span aria-hidden="true">☆</span> GITHUB STARS</span>
+          <strong>10k<span>+</span></strong>
+          <span class="stat-caption">스킬을 담은 저장소 기준</span>
+        </a>
+      </div>
+
+      <div class="chat-panel">
+        <div class="chat-head">
+          <h2><span class="terminal" aria-hidden="true">›_</span> 프로젝트 추천</h2>
+          <span id="mode" class="mode"></span>
+        </div>
+        <div id="transcript" class="chat-body" role="log" aria-label="추천 대화" aria-live="polite"></div>
+        <div class="chat-bottom">
+          <div class="examples" id="examples" aria-label="프로젝트 설명 예시">
+            <button type="button" data-example="Next.js로 대시보드를 만들고 있어요. React 화면 성능과 컴포넌트 구조를 개선하고 싶어요.">Next.js 대시보드</button>
+            <button type="button" data-example="랜딩 페이지를 만들고 있어요. 화면 디자인을 다듬고 브라우저에서 동작을 테스트하고 싶어요.">랜딩 페이지 제작</button>
+            <button type="button" data-example="Python으로 엑셀 리포트를 자동화하고 PDF로 결과를 내보내고 싶어요.">Python 리포트 자동화</button>
+          </div>
+          <form id="composer" class="composer">
+            <label for="upload" class="clip" title="프로젝트 파일 첨부" tabindex="0" role="button"><span aria-hidden="true">＋</span><span class="sr-only">프로젝트 파일 첨부</span></label>
+            <input id="upload" type="file" multiple accept=".zip,.md,.txt,.json,.toml,.yaml,.yml,.py,.js,.jsx,.ts,.tsx,.html,.css">
+            <textarea id="prompt" aria-label="프로젝트 설명" placeholder="어떤 프로젝트를 만들고 있나요?" rows="1" maxlength="6000"></textarea>
+            <button id="send" class="primary send" type="submit">추천 받기 <span aria-hidden="true">↑</span></button>
+          </form>
+          <div class="composer-meta"><span id="uploads">ZIP 또는 텍스트 파일 첨부</span><span>Enter 전송 · Shift + Enter 줄바꿈</span></div>
+          <p id="chat-notice" class="notice" role="status" hidden></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="catalog" class="catalog" aria-labelledby="catalog-title">
+      <div class="catalog-head">
+        <div>
+          <h2 id="catalog-title">스킬 탐색</h2>
+          <p>GitHub 별 1만 개 이상인 저장소에서 스킬을 찾아보세요.</p>
+        </div>
+        <button id="refresh" class="primary refresh" type="button"><span aria-hidden="true">⟳</span> GitHub에서 불러오기</button>
+      </div>
+      <div class="toolbar">
+        <div id="filters" class="filters" role="group" aria-label="스킬 카테고리"></div>
+        <label class="search"><span class="lens" aria-hidden="true"></span><input id="search" type="search" aria-label="스킬 검색" placeholder="스킬 검색"></label>
+      </div>
+      <div class="catalog-meta"><span id="count" aria-live="polite"></span><span id="source"></span></div>
+      <p id="catalog-notice" class="notice" role="status" hidden></p>
+      <div id="grid" class="grid"></div>
+      <button id="more" class="outline more" type="button" hidden>더 보기</button>
+    </section>
+  </main>
+
+  <footer class="shell footer"><span>Skill Shelf</span><a href="#top">맨 위로 ↑</a></footer>
+  <dialog id="detail" aria-labelledby="detail-title">
+    <div class="detail-inner">
+      <button id="close" type="button" aria-label="상세 닫기">×</button>
+      <div id="detail-body"></div>
+    </div>
+  </dialog>
+  <script id="seed" type="application/json">[
+  {"repo":"vercel-labs/agent-skills","stars":34800,"path":"skills/react-best-practices/SKILL.md","name":"React Best Practices","category":"frontend","description":"React와 Next.js의 렌더링 성능, 데이터 로딩, 번들 크기를 점검합니다.","tags":"react next.js nextjs component render dashboard 대시보드 렌더 컴포넌트 성능 웹"},
+  {"repo":"anthropics/skills","stars":199600,"path":"skills/frontend-design/SKILL.md","name":"Frontend Design","category":"design","description":"랜딩 페이지와 웹 앱의 레이아웃, 타이포그래피, 컴포넌트 스타일을 설계합니다.","tags":"landing ui ux next.js react tailwind figma frontend 디자인 랜딩 반응형 화면 레이아웃"},
+  {"repo":"obra/superpowers","stars":325176,"path":"skills/systematic-debugging/SKILL.md","name":"Systematic Debugging","category":"testing","description":"오류를 재현하고 원인을 추적한 뒤 수정 사항을 검증합니다.","tags":"debug fix bug error regression 오류 버그 원인 디버그 재현 로그"},
+  {"repo":"anthropics/skills","stars":199600,"path":"skills/webapp-testing/SKILL.md","name":"Webapp Testing","category":"testing","description":"Playwright로 사용자 동선과 브라우저 동작을 테스트합니다.","tags":"playwright browser e2e test 랜딩 브라우저 테스트 동작 버튼 사용자"},
+  {"repo":"anthropics/skills","stars":199600,"path":"skills/xlsx/SKILL.md","name":"Spreadsheets","category":"documents","description":"엑셀 파일의 표, 수식, 차트를 만들고 기존 데이터를 정리합니다.","tags":"python xlsx excel pandas spreadsheet report 엑셀 시트 리포트 보고서 자동화"},
+  {"repo":"obra/superpowers","stars":325176,"path":"skills/writing-plans/SKILL.md","name":"Writing Plans","category":"workflow","description":"작업에 필요한 파일과 구현·검증 단계를 순서대로 정리합니다.","tags":"plan roadmap architecture planning 기획 계획 로드맵 작업 구조 설계"},
+  {"repo":"anthropics/skills","stars":199600,"path":"skills/pdf/SKILL.md","name":"PDF","category":"documents","description":"PDF의 텍스트와 표를 추출하고 페이지를 합치거나 새 문서를 만듭니다.","tags":"python pdf report extract export 리포트 문서 보고서 내보내기"},
+  {"repo":"obra/superpowers","stars":325176,"path":"skills/test-driven-development/SKILL.md","name":"Test-Driven Development","category":"testing","description":"실패하는 테스트부터 작성하고 작은 단위로 구현과 검증을 반복합니다.","tags":"test tdd unit pytest jest regression 단위 테스트 회귀 검증"},
+  {"repo":"obra/superpowers","stars":325176,"path":"skills/brainstorming/SKILL.md","name":"Brainstorming","category":"workflow","description":"요구사항을 구체화하고 구현 전에 설계 방향을 비교합니다.","tags":"brainstorm requirements ideation planning 요구사항 기획 아이디어 프로젝트 설계"}
+]
+</script>
+  <script>
+(() => {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const embedded = window.parent !== window && !document.body.hasAttribute('data-standalone');
+  const source = $('seed').textContent.trim();
+  const demo = source.startsWith('[') ? JSON.parse(source) : [];
+  const categories = {
+    all: ['전체', ''], frontend: ['프론트엔드', '</>'], design: ['디자인', '◫'],
+    backend: ['백엔드', '{ }'], testing: ['테스트·디버깅', '✓'], workflow: ['개발 워크플로', '≡'],
+    documents: ['문서·데이터', '▤'], other: ['기타', '···'],
+  };
+  const welcome = '프로젝트의 목표나 막힌 부분을 알려주세요.';
+  const uploadHint = 'ZIP 또는 텍스트 파일 첨부';
+  const maxUpload = 4 * 1024 * 1024;
+  let catalog = demo;
+  let messages = [];
+  let mode = 'demo';
+  let sourceLabel = '미리보기 데이터';
+  let filter = 'all';
+  let waiting = false;
+  let offset = 6;
+  let files = [];
+  let skills = new Map();
+  let detailRequest = '';
+  let pendingRequest = '';
+  let activeDetail = '';
+
+  function el(tag, className, content) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (content !== undefined) node.textContent = content;
+    return node;
+  }
+
+  function post(type, props = {}) {
+    window.parent.postMessage({isStreamlitMessage: true, type: `streamlit:${type}`, ...props}, '*');
+  }
+
+  function sendEvent(action, data = {}) {
+    const id = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+    post('setComponentValue', {value: {id, action, ...data}, dataType: 'json'});
+    return id;
+  }
+
+  function reviseHeight() {
+    if (embedded) post('setFrameHeight', {height: Math.ceil(document.body.getBoundingClientRect().height)});
+  }
+
+  function key(skill) { return `${skill.repo}:${skill.path}`; }
+
+  function starLabel(stars) {
+    return `${(stars / 1000).toLocaleString('en', {maximumFractionDigits: 1})}k`;
+  }
+
+  function status(id, message) {
+    $(id).textContent = message || '';
+    $(id).hidden = !message;
+  }
+
+  function isBusy(next) {
+    waiting = next;
+    $('refresh').disabled = next;
+    $('send').disabled = next;
+  }
+
+  function card(skill) {
+    const [name, icon] = categories[skill.category] || categories.other;
+    const button = el('button', 'card');
+    button.type = 'button';
+    button.dataset.skill = skill.name;
+    const top = el('span', 'card-top');
+    top.append(el('span', 'glyph', icon), el('span', 'category', name));
+    const footer = el('span', 'card-footer');
+    const stars = el('span', '', `☆ ${starLabel(skill.stars)}`);
+    stars.title = `저장소 별 ${skill.stars.toLocaleString('ko-KR')}개`;
+    footer.append(el('span', '', skill.repo), stars);
+    button.append(top, el('h3', '', skill.name), el('p', '', skill.description), footer);
+    button.addEventListener('click', () => openDetail(skill));
+    return button;
+  }
+
+  function renderCatalog() {
+    const query = $('search').value.trim().toLocaleLowerCase();
+    const result = catalog.filter((skill) => {
+      const category = categories[skill.category] || categories.other;
+      return (filter === 'all' || skill.category === filter)
+        && `${skill.name} ${skill.description} ${skill.repo} ${category[0]}`.toLocaleLowerCase().includes(query);
+    });
+    const grid = $('grid');
+    grid.replaceChildren(...result.slice(0, offset).map(card));
+    if (!result.length) grid.append(el('div', 'empty', '조건에 맞는 스킬이 없습니다.'));
+    $('count').textContent = `스킬 ${result.length.toLocaleString('ko-KR')}개`;
+    $('source').textContent = sourceLabel;
+    $('more').hidden = result.length <= offset;
+  }
+
+  function renderMessages() {
+    const log = $('transcript');
+    log.replaceChildren(el('div', 'message', welcome));
+    for (const message of messages) {
+      const item = el('div', `message ${message.role}`, message.text);
+      if (message.recommendations?.length) {
+        const list = el('div', 'suggestions');
+        for (const match of message.recommendations) {
+          const skill = skills.get(match.id) || match.skill;
+          if (!skill) continue;
+          const button = el('button', 'suggestion');
+          button.type = 'button';
+          button.append(el('strong', '', skill.name), el('span', '', match.reason));
+          button.addEventListener('click', () => openDetail(skill));
+          list.append(button);
+        }
+        item.append(list);
+      }
+      log.append(item);
+    }
+    $('examples').hidden = messages.length > 0;
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function render() {
+    skills = new Map(catalog.map((skill) => [key(skill), skill]));
+    $('mode').classList.toggle('live', mode === 'ai');
+    $('mode').textContent = {ai: 'AI 연결됨', rules: '키워드 추천', demo: '시안 · 예시 추천'}[mode] || '';
+    renderCatalog();
+    renderMessages();
+  }
+
+  function githubLink(text, href, className) {
+    const link = el('a', className, text);
+    const parsed = new URL(href, 'https://github.com/');
+    if (parsed.origin === 'https://github.com') link.href = parsed.href;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    return link;
+  }
+
+  function openDetail(skill) {
+    const dialog = $('detail');
+    const body = $('detail-body');
+    activeDetail = key(skill);
+    const trigger = document.activeElement?.getBoundingClientRect();
+    const [name, icon] = categories[skill.category] || categories.other;
+    const title = el('h2', '', skill.name);
+    title.id = 'detail-title';
+    const description = el('p', '', skill.description);
+    description.id = 'detail-description';
+    const repo = skill.repo.split('/').map(encodeURIComponent).join('/');
+    const branch = (skill.branch || 'main').split('/').map(encodeURIComponent).join('/');
+    const path = skill.path.split('/').map(encodeURIComponent).join('/');
+    body.replaceChildren(el('span', 'glyph', icon), title,
+      el('div', 'category', `${name} · 저장소 별 ${starLabel(skill.stars)}`), description,
+      githubLink('SKILL.md 보기', `https://github.com/${repo}/blob/${branch}/${path}`, 'primary'),
+      githubLink('저장소 열기', `https://github.com/${repo}`, 'outline'), el('small', '', `${skill.repo}/${skill.path}`));
+    if (!dialog.open) {
+      dialog.showModal();
+      // A Streamlit iframe can be taller than the visible browser viewport.
+      dialog.style.top = '';
+      dialog.style.bottom = '';
+      if (embedded) {
+        const frame = window.frameElement?.getBoundingClientRect();
+        const center = frame ? window.parent.innerHeight / 2 - frame.top : trigger?.top;
+        if (center !== undefined) {
+          dialog.style.top = `${Math.max(10, center - dialog.offsetHeight / 2)}px`;
+          dialog.style.bottom = 'auto';
+        }
+      }
+    }
+    if (embedded && skill.detail_pending && !waiting) {
+      const id = sendEvent('detail', {skill: activeDetail});
+      detailRequest = {id, skill: activeDetail};
+      pendingRequest = id;
+      isBusy(true);
+    }
+  }
+
+  function score(skill, input) {
+    const haystack = `${skill.name} ${skill.tags || ''} ${skill.description}`.toLocaleLowerCase();
+    return [...new Set(input.toLocaleLowerCase().match(/[\p{L}\p{N}.+-]{2,}/gu) || [])]
+      .reduce((total, term) => total + Number(haystack.includes(term)), 0);
+  }
+
+  async function encodeFile(file) {
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    let binary = '';
+    for (let i = 0; i < bytes.length; i += 8192) {
+      binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+    }
+    return {name: file.name, content: btoa(binary)};
+  }
+
+  async function submit(event) {
+    event.preventDefault();
+    const input = $('prompt');
+    const prompt = input.value.trim();
+    if (waiting) return;
+    if (!prompt && !files.length) {
+      status('chat-notice', '프로젝트 설명을 입력하거나 파일을 첨부하세요.');
+      input.focus();
+      return;
+    }
+    status('chat-notice', '');
+    isBusy(true);
+    try {
+      if (!embedded) {
+        const text = [prompt, ...files.map((file) => file.name)].filter(Boolean).join('\n');
+        const best = [...catalog].sort((a, b) => score(b, text) - score(a, text));
+        const relevant = best.filter((skill) => score(skill, text) > 0);
+        messages.push({role: 'user', text}, {role: 'assistant',
+          text: relevant.length ? '입력한 내용과 관련된 예시 스킬입니다.' : '사용 기술이나 해결하고 싶은 작업을 조금 더 구체적으로 적어주세요.',
+          recommendations: relevant.slice(0, 3).map((skill) => ({id: key(skill), reason: skill.description}))});
+        if (files.length) status('chat-notice', '시안에서는 첨부한 파일 이름으로 예시 추천을 보여드립니다.');
+        renderMessages();
+      } else {
+        const payload = await Promise.all(files.map(encodeFile));
+        pendingRequest = sendEvent('recommend', {prompt, files: payload});
+        status('chat-notice', '프로젝트에 맞는 스킬을 찾고 있습니다.');
+      }
+      input.value = '';
+      files = [];
+      $('upload').value = '';
+      $('uploads').textContent = uploadHint;
+    } catch {
+      status('chat-notice', '첨부파일을 읽지 못했습니다. 다시 선택해 주세요.');
+      isBusy(false);
+    } finally {
+      if (!embedded) isBusy(false);
+    }
+  }
+
+  for (const [id, [name]] of Object.entries(categories)) {
+    const button = el('button', '', name);
+    button.type = 'button';
+    button.setAttribute('aria-pressed', String(id === 'all'));
+    button.addEventListener('click', () => {
+      $('filters').querySelector('[aria-pressed=true]').setAttribute('aria-pressed', 'false');
+      button.setAttribute('aria-pressed', 'true');
+      filter = id;
+      offset = 6;
+      renderCatalog();
+    });
+    $('filters').append(button);
+  }
+
+  $('refresh').addEventListener('click', () => {
+    if (!embedded) {
+      sourceLabel = '미리보기 데이터';
+      renderCatalog();
+      status('catalog-notice', 'Streamlit 앱을 실행하면 이 버튼으로 GitHub의 최신 목록을 불러올 수 있습니다.');
+      return;
+    }
+    isBusy(true);
+    status('catalog-notice', 'GitHub에서 스킬을 찾고 있습니다.');
+    pendingRequest = sendEvent('refresh');
+  });
+  $('search').addEventListener('input', () => { offset = 6; renderCatalog(); });
+  $('more').addEventListener('click', () => { offset += 12; renderCatalog(); });
+  $('close').addEventListener('click', () => $('detail').close());
+  $('detail').addEventListener('click', (event) => { if (event.target === $('detail')) $('detail').close(); });
+  $('composer').addEventListener('submit', submit);
+  $('prompt').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' && !event.shiftKey && !event.isComposing && event.keyCode !== 229) {
+      event.preventDefault();
+      $('composer').requestSubmit();
+    }
+  });
+  document.querySelector('.clip').addEventListener('keydown', (event) => {
+    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); $('upload').click(); }
+  });
+  $('upload').addEventListener('change', () => {
+    const picked = Array.from($('upload').files);
+    if (picked.length > 3 || picked.some((file) => file.size > maxUpload)
+        || picked.reduce((size, file) => size + file.size, 0) > 2 * maxUpload) {
+      $('upload').value = '';
+      files = [];
+      $('uploads').textContent = uploadHint;
+      status('chat-notice', '파일은 3개까지, 각 4MB와 합계 8MB 이내로 첨부할 수 있습니다.');
+      return;
+    }
+    files = picked;
+    const privacy = mode === 'ai' ? ' · 분석용 파일 요약을 OpenAI로 전송합니다.' : '';
+    $('uploads').textContent = files.length ? files.map((file) => file.name).join(' · ') + privacy : uploadHint;
+    status('chat-notice', '');
+  });
+  $('examples').addEventListener('click', (event) => {
+    if (!event.target.dataset.example) return;
+    $('prompt').value = event.target.dataset.example;
+    $('prompt').focus();
+  });
+  document.querySelectorAll('a[href^="#"]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      const target = link.getAttribute('href');
+      document.querySelectorAll('.nav-link').forEach((item) => item.classList.toggle('active', item.hash === (target === '#top' ? '#recommend' : target)));
+      if (target === '#top') document.body.scrollIntoView();
+      else document.querySelector(target).scrollIntoView({block: 'start'});
+    });
+  });
+
+  if (embedded) {
+    addEventListener('message', (event) => {
+      if (event.source !== window.parent || event.data?.type !== 'streamlit:render') return;
+      const args = event.data.args || {};
+      catalog = args.catalog || [];
+      messages = args.messages || [];
+      sourceLabel = args.source || '';
+      mode = args.mode || 'rules';
+      if (args.processed && args.processed === pendingRequest) {
+        isBusy(false);
+        pendingRequest = '';
+        status('chat-notice', args.chat_notice);
+        status('catalog-notice', args.catalog_notice);
+      }
+      if (detailRequest && args.detail?.id === detailRequest.id && activeDetail === detailRequest.skill
+          && $('detail').open && args.detail.description) {
+        $('detail-description').textContent = args.detail.description;
+        detailRequest = null;
+      }
+      render();
+    });
+    post('componentReady', {apiVersion: 1});
+    new ResizeObserver(reviseHeight).observe(document.body);
+  }
+  render();
+})();
+
+</script>
+</body>
+</html>
